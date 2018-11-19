@@ -1,0 +1,412 @@
+﻿<!DOCTYPE html>
+<head>
+	<style>
+	html, body{ padding: 0; margin: 0; height:100%; }
+	#team{
+		width: 100%; height: 100%;		
+		position: absolute;
+	}
+	#user{
+		padding: 15%;
+		padding-top: 10%;
+	}
+	.user{
+		height : 20px;
+	}
+	#apply{
+		float: right;
+		margin-top: 10px;
+		margin-right: 10px;
+	}
+	#result{
+		display:none;
+		width: 100%; height: 100%;
+		background-color: rgba( 0, 0, 0, 0.5);
+		position: absolute; z-index: 1000;	
+	}
+	#resultTable{
+		width: 50%; height: 50%;
+		margin-left: 25%;
+		margin-top: 15%;
+		background-color: #ffffff;
+	}
+	#resultClose{
+		right: 0;
+		margin: 5px 10px 0 0;
+		cursor: pointer;
+	}
+	#summonerLift{
+		z-index: 1005;
+		width: 80%;
+		height : 100%;
+		margin-left: 10%;
+		margin-top:20px;
+	}
+	.rt{ right : 0;}
+	.bt{ left : 0;}
+	.top{
+		margin-top:5%;
+	}
+	.jun{
+		margin-top:20%;	
+	}
+	.mid{
+		margin-top:35%;
+	}
+	.adc{
+		margin-top:50%;
+	}
+	.sup{
+		margin-top:65%;
+	}
+
+	/*
+	.rt{ margin-left : 100px;}
+	.bt{ margin-top : 50px;}
+	.top{
+		top: 50px;
+		left: 60px;
+	}
+	.jun{
+		top: 90px;
+		left: 110px;
+	}
+	.mid{
+		top: 160px;
+		left: 200px;
+	}
+	.adc{
+		top: 220px;
+		left: 280px;
+	}
+	.sup{
+		 top: 250px;
+		left: 280px;
+	}
+	*/
+	.mgt20{
+		margin-top: 20px;
+	}
+	.abs{
+		position: absolute;
+	}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="http://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+	<script>
+
+	var countTime = new Date();
+	var timeOut = new Interval(intervalCount, 1000);
+	var shuffleList = "";
+	var blueTeam = [];
+	var redTeam = [];
+
+	$(document).ready(function(){
+		$("#apply").click(applyBtn);
+		$("#resultClose").click(resultHide);
+
+		$("#btnSave").click(function() { 
+//			html2canvas($("#result")).then(canvas => { document.body.appendChild(canvas) });
+         			html2canvas(document.querySelector("#result")).then(
+				canvas => { canvas.toBlob(function(blob) {  saveAs(blob, "Dashboard.png");  }); });
+		});
+	});
+
+	function applyBtn(){
+		if( !timeOut.isRunning() ){
+			var nowMin = new Date().getMinutes();
+			countTime = new Date().setMinutes(nowMin + 5);
+			timeOut.start();
+			
+			var $user = $(".user");
+			var userLength = $user.length;
+			var userList = new Array();
+	
+			for( var i = 0 ; i < userLength ; i++ ){
+					userList.push($user.eq(i).val());
+			}
+	
+			shuffleList = shuffle(userList);
+	
+			blueTeam.Top = shuffleList[0];
+			blueTeam.Jungle = shuffleList[1];
+			blueTeam.Mid = shuffleList[2];
+			blueTeam.ADC = shuffleList[3];
+			blueTeam.Supt = shuffleList[4];
+			redTeam.Top = shuffleList[5];
+			redTeam.Jungle = shuffleList[6];
+			redTeam.Mid = shuffleList[7];
+			redTeam.ADC = shuffleList[8];
+			redTeam.Supt = shuffleList[9];
+		}
+		resultView();
+	}
+	
+	function resultView(){
+		var bluePosition = Object.keys(blueTeam);
+		var redPosition = Object.keys(redTeam);
+
+		for( idx in bluePosition){
+			var temp = bluePosition[idx];
+			$("#blue" + temp).text(temp + " : " + blueTeam[temp]);
+		}
+
+		for( idx in redPosition){
+			var temp = redPosition[idx];
+			$("#red" + temp).text(temp + " : " + redTeam[temp]);	
+		}
+		$("#result").show();
+	}
+
+	function resultHide(){
+		$("#result").hide();
+	}
+
+	function shuffle(a) {
+	    for (let i = a.length - 1; i > 0; i--) {
+	        const j = Math.floor(Math.random() * (i + 1));
+	        [a[i], a[j]] = [a[j], a[i]];
+	    }
+	    return a;
+	}
+
+	function Interval(fn, time) {
+		var timer = false;
+		this.start = function () {
+		if (!this.isRunning())
+			timer = setInterval(fn, time);
+		};
+		this.stop = function () {
+			clearInterval(timer);
+			timer = false;
+		};
+		this.isRunning = function () {
+			return timer !== false;
+		};
+	}
+
+	function intervalCount(){
+		var now = new Date().getTime();
+
+		var distance = countTime - now;
+		var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+		var timeText = "주작카운트 : " + minutes + "m " + seconds + "s ";
+		$("#countdown").text(timeText);
+
+		if( distance < 0 ){
+			timeOut.stop();
+			$("#countdown").text("끝");
+		}
+	}
+
+
+	/* File Saver */
+// The one and only way of getting global scope in all environments
+// https://stackoverflow.com/q/3277182/1008999
+var _global = typeof window === 'object' && window.window === window
+  ? window : typeof self === 'object' && self.self === self
+  ? self : typeof global === 'object' && global.global === global
+  ? global
+  : this
+
+function bom (blob, opts) {
+  if (typeof opts === 'undefined') opts = { autoBom: false }
+  else if (typeof opts !== 'object') {
+    console.warn('Depricated: Expected third argument to be a object')
+    opts = { autoBom: !opts }
+  }
+
+  // prepend BOM for UTF-8 XML and text/* types (including HTML)
+  // note: your browser will automatically convert UTF-16 U+FEFF to EF BB BF
+  if (opts.autoBom && /^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(blob.type)) {
+    return new Blob([String.fromCharCode(0xFEFF), blob], { type: blob.type })
+  }
+  return blob
+}
+
+function download (url, name, opts) {
+  var xhr = new XMLHttpRequest()
+  xhr.open('GET', url)
+  xhr.responseType = 'blob'
+  xhr.onload = function () {
+    saveAs(xhr.response, name, opts)
+  }
+  xhr.onerror = function () {
+    console.error('could not download file')
+  }
+  xhr.send()
+}
+
+function corsEnabled (url) {
+  var xhr = new XMLHttpRequest()
+  // use sync to avoid popup blocker
+  xhr.open('HEAD', url, false)
+  xhr.send()
+  return xhr.status >= 200 && xhr.status <= 299
+}
+
+// `a.click()` doesn't work for all browsers (#465)
+function click(node) {
+  try {
+    node.dispatchEvent(new MouseEvent('click'))
+  } catch (e) {
+    var evt = document.createEvent('MouseEvents')
+    evt.initMouseEvent('click', true, true, window, 0, 0, 0, 80,
+                          20, false, false, false, false, 0, null)
+    node.dispatchEvent(evt)
+  }
+}
+
+var saveAs = _global.saveAs ||
+// probably in some web worker
+(typeof window !== 'object' || window !== _global)
+  ? function saveAs () { /* noop */ }
+
+// Use download attribute first if possible (#193 Lumia mobile)
+: 'download' in HTMLAnchorElement.prototype
+? function saveAs (blob, name, opts) {
+  var URL = _global.URL || _global.webkitURL
+  var a = document.createElement('a')
+  name = name || blob.name || 'download'
+
+  a.download = name
+  a.rel = 'noopener' // tabnabbing
+
+  // TODO: detect chrome extensions & packaged apps
+  // a.target = '_blank'
+
+  if (typeof blob === 'string') {
+    // Support regular links
+    a.href = blob
+    if (a.origin !== location.origin) {
+      corsEnabled(a.href)
+        ? download(blob, name, opts)
+        : click(a, a.target = '_blank')
+    } else {
+      click(a)
+    }
+  } else {
+    // Support blobs
+    a.href = URL.createObjectURL(blob)
+    setTimeout(function () { URL.revokeObjectURL(a.href) }, 4E4) // 40s
+    setTimeout(function () { click(a) }, 0)
+  }
+}
+
+// Use msSaveOrOpenBlob as a second approach
+: 'msSaveOrOpenBlob' in navigator
+? function saveAs (blob, name, opts) {
+  name = name || blob.name || 'download'
+
+  if (typeof blob === 'string') {
+    if (corsEnabled(blob)) {
+      download(blob, name, opts)
+    } else {
+      var a = document.createElement('a')
+      a.href = blob
+      a.target = '_blank'
+      setTimeout(function () { click(a) })
+    }
+  } else {
+    navigator.msSaveOrOpenBlob(bom(blob, opts), name)
+  }
+}
+
+// Fallback to using FileReader and a popup
+: function saveAs (blob, name, opts, popup) {
+  // Open a popup immediately do go around popup blocker
+  // Mostly only avalible on user interaction and the fileReader is async so...
+  popup = popup || open('', '_blank')
+  if (popup) {
+    popup.document.title =
+    popup.document.body.innerText = 'downloading...'
+  }
+
+  if (typeof blob === 'string') return download(blob, name, opts)
+
+  var force = blob.type === 'application/octet-stream'
+  var isSafari = /constructor/i.test(_global.HTMLElement) || _global.safari
+  var isChromeIOS = /CriOS\/[\d]+/.test(navigator.userAgent)
+
+  if ((isChromeIOS || (force && isSafari)) && typeof FileReader === 'object') {
+    // Safari doesn't allow downloading of blob urls
+    var reader = new FileReader()
+    reader.onloadend = function () {
+      var url = reader.result
+      url = isChromeIOS ? url : url.replace(/^data:[^;]*;/, 'data:attachment/file;')
+      if (popup) popup.location.href = url
+      else location = url
+      popup = null // reverse-tabnabbing #460
+    }
+    reader.readAsDataURL(blob)
+  } else {
+    var URL = _global.URL || _global.webkitURL
+    var url = URL.createObjectURL(blob)
+    if (popup) popup.location = url
+    else location.href = url
+    popup = null // reverse-tabnabbing #460
+    setTimeout(function () { URL.revokeObjectURL(url) }, 4E4) // 40s
+  }
+}
+
+_global.saveAs = saveAs.saveAs = saveAs
+
+if (typeof module !== 'undefined') {
+  module.exports = saveAs;
+}
+	</script>
+</head>
+<body>
+	<div id="team">
+		<div id="user">
+			<input type="text" class="user"/>
+			<input type="text" class="user"/>
+			<input type="text" class="user"/>
+			<input type="text" class="user"/>
+			<input type="text" class="user"/>
+			<input type="text" class="user mgt20"/>
+			<input type="text" class="user mgt20"/>
+			<input type="text" class="user mgt20"/>
+			<input type="text" class="user mgt20"/>
+			<input type="text" class="user mgt20"/>
+		
+			<input type="button" id="apply" value="ㄱㄱ"/>
+		</div>
+	</div>
+
+	<div id="result">
+		<div id="resultTable" class="abs">
+			<div id="countdown" class="abs">
+			</div>
+			<div id="resultClose" class="abs">
+				Ｘ
+			</div>
+			<div id ="summonerLift" class="abs">
+			<div id="redTop" class="rt top abs">
+			</div>
+			<div id="redJungle" class="rt jun abs">
+			</div>
+			<div id="redMid" class="rt mid abs">
+			</div>
+			<div id="redADC" class="rt adc abs">
+			</div>
+			<div id="redSupt" class="rt sup abs">
+			</div>
+			<div id="blueTop" class="bt top abs">
+			</div>
+			<div id="blueJungle" class="bt jun abs">
+			</div>
+			<div id="blueMid" class="bt mid abs">
+			</div>
+			<div id="blueADC" class="bt adc abs">
+			</div>
+			<div id="blueSupt" class="bt sup abs">
+			</div>
+			</div>
+			<input type="button" id = "btnSave" value="저장" class="abs" style="bottom:0; right:0;"/>
+		</div>
+	</div>
+</body>
+</html>
